@@ -1,6 +1,6 @@
-# Bollywood Celebrity Classifier
+# Celebrity Classifier
 
-This project is a Celebrity Classifier that uses a pre-trained VGG16 model to identify which Bollywood celebrity an uploaded image resembles. 
+This project is a Celebrity Classifier that uses a pre-trained VGG16 model to identify which celebrity an uploaded image resembles. 
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -14,7 +14,7 @@ This project is a Celebrity Classifier that uses a pre-trained VGG16 model to id
 
 ## Introduction
 
-The Bollywood Celebrity Classifier is built using a Convolutional Neural Network (CNN) based on the VGG16 architecture. It takes an image as input and predicts the Bollywood celebrity that the image resembles the most.
+The Celebrity Classifier is built using a Convolutional Neural Network (CNN) based on the VGG16 architecture. It takes an image as input and predicts the celebrity that the image resembles the most.
 
 ## Features
 
@@ -25,7 +25,7 @@ The Bollywood Celebrity Classifier is built using a Convolutional Neural Network
 
 ## Dataset
 
-The dataset consists of images of various Bollywood celebrities. The images are used to extract features and build a similarity-based classifier. \
+The dataset consists of images of various celebrities. The images are used to extract features and build a similarity-based classifier. \
 Link : https://www.kaggle.com/datasets/sushilyadav1998/bollywood-celeb-localized-face-dataset and our own dataset!
 
 ## Model

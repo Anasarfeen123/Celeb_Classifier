@@ -19,15 +19,7 @@ hollywood_celebrities = celebrities = [
     "Julia Roberts", "Nicolas Cage", "Ian McKellen", "Halle Berry",
     "Bruce Willis", "Samuel L. Jackson", "Ben Stiller", "Tommy Lee Jones",
     "Jack Black", "Antonio Banderas", "Denzel Washington", "Steve Carell",
-    "Selena Gomez", "Shia LaBeouf", "Megan Fox", "James Franco",
-    "Mel Gibson", "Vin Diesel", "Tim Allen", "Robin Williams", "Jason Biggs",
-    "Seann William Scott", "Jean-Claude Van Damme", "Owen Wilson",
-    "Christian Bale", "Peter Jackson", "Sandra Bullock", "Bruce Lee",
-    "Zendaya", "Drew Barrymore", "Tom Holland", "Macaulay Culkin",
-    "Jack Nicholson", "Bill Murray", "Sigourney Weaver", "Jake Gyllenhaal",
-    "Jason Statham", "Jet Li", "Kate Beckinsale", "Rowan Atkinson",
-    "Marlon Brando", "Jennifer Lopez", "John Travolta", "Ben Affleck", "Chris Hemsworth", "James McAvoy", "Tom Hiddleston", "Daisy Ridley",
-    "Chris Pratt"
+    "Selena Gomez", "Shia LaBeouf", "Megan Fox", "James Franco"
 ]
 kollywood_celebrities = [
     "Vijay", "Ajith Kumar", "Suriya", "Dhanush", "Sivakarthikeyan",
@@ -75,4 +67,4 @@ for name in all_celebrities:
 
     sleep(3)  # avoid server spam
 
-print("\n✅ All downloads complete. 64×64 dataset ready in 'data_64/'")
+print("\n✅ All downloads complete. 64×64 dataset ready in 'data/'")
