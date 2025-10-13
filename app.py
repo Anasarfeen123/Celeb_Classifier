@@ -80,32 +80,38 @@ model = load_model()
 # --- Load features ---
 @st.cache_data
 def load_features():
+    import re
+
     features = pickle.load(open("features.pkl", "rb"))
     filenames = pickle.load(open("filenames.pkl", "rb"))
 
-    base_dir = "Celeb_Classifier/data"
     fixed_filenames = []
-
     for f in filenames:
-        f = f.replace("\\", "/")
-        base = os.path.basename(f)  # e.g., Amrita_Rao.109.jpg
+        f = f.replace("\\", "/")  # normalize slashes
 
-        # Try to infer the folder name from the file
-        folder_guess = base.split("_")[0]  # e.g., "Amrita" from "Amrita_Rao.109.jpg"
-        expected_path = os.path.join(base_dir, folder_guess, base)
+        # extract base filename (e.g., Nargis_Fakhri_014.jpg)
+        base = os.path.basename(f)
 
-        if os.path.exists(expected_path):
-            fixed_filenames.append(expected_path)
+        # derive correct folder name from the filename prefix
+        # e.g. Nargis_Fakhri_014.jpg → Nargis_Fakhri
+        folder_name = re.match(r"([A-Za-z_]+?)(?:_\d+)?\.[A-Za-z]+$", base)
+        if folder_name:
+            folder_name = folder_name.group(1)
         else:
-            # If folder_guess path doesn’t exist, search anywhere in /data/
-            matches = glob.glob(os.path.join(base_dir, "**", base), recursive=True)
-            if matches:
-                fixed_filenames.append(matches[0])  # pick the first found file
-            else:
-                print("Missing:", base)
-                fixed_filenames.append(expected_path)  # fallback for debugging
+            folder_name = base.split("_")[0]  # fallback
+
+        # rebuild correct full path
+        # new_path = os.path.join("Celeb_Classifier", "data", folder_name, base)
+        base_dir = os.path.dirname(os.path.abspath(__file__))  # directory where app.py lives
+        new_path = os.path.join(base_dir, "data", folder_name, base)
+
+        if not os.path.exists(new_path):
+            # optional debugging print
+            print(f"⚠️ File not found: {new_path}")
+        fixed_filenames.append(new_path)
 
     return features, fixed_filenames
+
 
 
 feature_list, filenames = load_features()
