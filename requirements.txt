@@ -3,4 +3,5 @@ numpy
 Pillow
 scikit-learn
 h5py
-pickle5
+tqdm
+tensorflow

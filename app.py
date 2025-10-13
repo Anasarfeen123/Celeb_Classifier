@@ -4,6 +4,7 @@ from tensorflow.keras.preprocessing import image # type: ignore
 from sklearn.metrics.pairwise import cosine_similarity
 from PIL import Image
 import numpy as np
+import glob
 import pickle
 import os
 
@@ -81,19 +82,31 @@ model = load_model()
 def load_features():
     features = pickle.load(open("features.pkl", "rb"))
     filenames = pickle.load(open("filenames.pkl", "rb"))
-    # Normalize Windows paths → Linux-friendly relative ones
+
+    base_dir = "Celeb_Classifier/data"
     fixed_filenames = []
+
     for f in filenames:
-        f = f.replace("\\", "/")  # normalize slashes
-        # Strip out old drive letter and base path if it exists
-        if "Celeb Classifier" in f:
-            f = f.split("Celeb Classifier")[-1]
-        f = f.strip("/\\")  # remove leading slashes
-        # Rebuild correct local path
-        new_path = os.path.join("data", os.path.basename(f)) if not os.path.exists(f) else f
-        fixed_filenames.append(new_path)
-    filenames = fixed_filenames
-    return features, filenames
+        f = f.replace("\\", "/")
+        base = os.path.basename(f)  # e.g., Amrita_Rao.109.jpg
+
+        # Try to infer the folder name from the file
+        folder_guess = base.split("_")[0]  # e.g., "Amrita" from "Amrita_Rao.109.jpg"
+        expected_path = os.path.join(base_dir, folder_guess, base)
+
+        if os.path.exists(expected_path):
+            fixed_filenames.append(expected_path)
+        else:
+            # If folder_guess path doesn’t exist, search anywhere in /data/
+            matches = glob.glob(os.path.join(base_dir, "**", base), recursive=True)
+            if matches:
+                fixed_filenames.append(matches[0])  # pick the first found file
+            else:
+                print("Missing:", base)
+                fixed_filenames.append(expected_path)  # fallback for debugging
+
+    return features, fixed_filenames
+
 
 feature_list, filenames = load_features()
 
