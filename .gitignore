@@ -3,3 +3,4 @@ filenames.pkl
 feature_embedding.pkl
 features.pkl
 *.pkl
+*.pkl
