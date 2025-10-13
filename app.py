@@ -1,6 +1,6 @@
 import streamlit as st
-from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
-from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input # type: ignore
+from tensorflow.keras.preprocessing import image # type: ignore
 from sklearn.metrics.pairwise import cosine_similarity
 from PIL import Image
 import numpy as np
@@ -86,8 +86,8 @@ def load_features():
     for f in filenames:
         f = f.replace("\\", "/")  # normalize slashes
         # Strip out old drive letter and base path if it exists
-        if "Bollywood Celeb Classifier" in f:
-            f = f.split("Bollywood Celeb Classifier")[-1]
+        if "Celeb Classifier" in f:
+            f = f.split("Celeb Classifier")[-1]
         f = f.strip("/\\")  # remove leading slashes
         # Rebuild correct local path
         new_path = os.path.join("data", os.path.basename(f)) if not os.path.exists(f) else f

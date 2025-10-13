@@ -51,7 +51,7 @@ def resize_all_images(folder, size):
         file_path = os.path.join(folder, file)
         try:
             img = Image.open(file_path).convert("RGB")
-            img = img.resize(size, Image.LANCZOS)
+            img = img.resize(size, Image.LANCZOS) # type: ignore
             img.save(file_path, quality=85)
         except Exception:
             # Remove corrupt or non-image files

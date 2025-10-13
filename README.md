@@ -1,6 +1,6 @@
 # Bollywood Celebrity Classifier
 
-This project is a Bollywood Celebrity Classifier that uses a pre-trained VGG16 model to identify which Bollywood celebrity an uploaded image resembles. 
+This project is a Celebrity Classifier that uses a pre-trained VGG16 model to identify which Bollywood celebrity an uploaded image resembles. 
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -26,7 +26,7 @@ The Bollywood Celebrity Classifier is built using a Convolutional Neural Network
 ## Dataset
 
 The dataset consists of images of various Bollywood celebrities. The images are used to extract features and build a similarity-based classifier. \
-Link : https://www.kaggle.com/datasets/sushilyadav1998/bollywood-celeb-localized-face-dataset
+Link : https://www.kaggle.com/datasets/sushilyadav1998/bollywood-celeb-localized-face-dataset and our own dataset!
 
 ## Model
 
@@ -40,8 +40,8 @@ The `feature_extractor` function extracts features from an image using the VGG16
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/Aditya-Ranjan1234/BollywoodCeleb_Classifier.git
-    cd BollywoodCeleb_Classifier
+    git clone https://github.com/Anasarfeen123/Celeb_Classifier.git
+    cd Celeb_Classifier
     ```
 
 2. **Create a virtual environment:**
@@ -81,7 +81,7 @@ The `feature_extractor` function extracts features from an image using the VGG16
     - Upload an image of a face.
 
 3. **View the results:**
-    - The app will display the uploaded image and the most similar Bollywood celebrity image along with the predicted name.
+    - The app will display the uploaded image and the most similar celebrity image along with the predicted name.
 
 ## License
 
