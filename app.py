@@ -1,5 +1,6 @@
 import streamlit as st
-from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input # type: ignore
+from tensorflow.keras.applications import ResNet50 # type: ignore
+from tensorflow.keras.applications.resnet50 import preprocess_input # type: ignore
 from tensorflow.keras.preprocessing import image # type: ignore
 from sklearn.metrics.pairwise import cosine_similarity
 from PIL import Image
@@ -73,7 +74,8 @@ h3 {
 # --- Cache model ---
 @st.cache_resource
 def load_model():
-    return VGG16(weights="imagenet", include_top=False, input_shape=(224, 224, 3))
+    return ResNet50(weights="imagenet", include_top=False, pooling="avg", input_shape=(224, 224, 3))
+
 
 model = load_model()
 
