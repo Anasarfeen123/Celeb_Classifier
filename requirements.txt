@@ -1,7 +1,5 @@
 streamlit
-numpy
-Pillow
-scikit-learn
-h5py
-tqdm
 tensorflow
+scikit-learn
+Pillow
+numpy

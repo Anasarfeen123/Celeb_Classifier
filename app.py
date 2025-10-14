@@ -5,10 +5,9 @@ from tensorflow.keras.preprocessing import image # type: ignore
 from sklearn.metrics.pairwise import cosine_similarity
 from PIL import Image
 import numpy as np
-import glob
 import pickle
 import os
-from pathlib import Path # Added for robust path handling
+from pathlib import Path
 
 # --- Page setup ---
 st.set_page_config(page_title="Celebrity Lookalike", page_icon="🌟", layout="centered")
@@ -66,9 +65,6 @@ h3 {
     color: #bbb;
     text-align: center;
 }
-.stCameraInput {
-    text-align: center !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -80,7 +76,6 @@ BASE_DIR = Path(__file__).parent
 def load_model():
     return ResNet50(weights="imagenet", include_top=False, pooling="avg", input_shape=(224, 224, 3))
 
-
 model = load_model()
 
 # --- Load features ---
@@ -90,7 +85,7 @@ def load_features():
     filenames_path = BASE_DIR / "filenames.pkl"
 
     if not features_path.exists():
-        st.error(f"Error: {features_path.name} not found. Please ensure feature_embedding.pkl (renamed to features.pkl) is in the app's directory.")
+        st.error(f"Error: {features_path.name} not found. Please ensure features.pkl is in the app's directory.")
         st.stop()
     if not filenames_path.exists():
         st.error(f"Error: {filenames_path.name} not found. Please ensure filenames.pkl is in the app's directory.")
@@ -99,11 +94,38 @@ def load_features():
     features = pickle.load(open(features_path, "rb"))
     filenames = pickle.load(open(filenames_path, "rb"))
 
-    # Normalize all paths just in case (and convert to string for display/comparison if needed)
-    fixed_filenames = [str(Path(f).resolve()) for f in filenames]
+    # Convert all filenames to absolute paths relative to BASE_DIR
+    # This handles both relative paths (from deployment) and absolute paths (from local)
+    fixed_filenames = []
+    for f in filenames:
+        path = Path(f)
+        if path.is_absolute():
+            # If it's already absolute, use as is (for local development)
+            if path.exists():
+                fixed_filenames.append(str(path))
+            else:
+                # Try to find it relative to BASE_DIR
+                rel_path = BASE_DIR / path.name
+                if rel_path.exists():
+                    fixed_filenames.append(str(rel_path))
+                else:
+                    # Try data/actor/file structure
+                    try:
+                        parts = path.parts
+                        if "data" in parts:
+                            idx = parts.index("data")
+                            rel_path = BASE_DIR / Path(*parts[idx:])
+                            fixed_filenames.append(str(rel_path))
+                        else:
+                            fixed_filenames.append(str(path))
+                    except:
+                        fixed_filenames.append(str(path))
+        else:
+            # If relative, resolve relative to BASE_DIR
+            full_path = BASE_DIR / path
+            fixed_filenames.append(str(full_path))
 
     return features, fixed_filenames
-
 
 feature_list, filenames = load_features()
 
@@ -116,14 +138,13 @@ def feature_extractor(img_path, model):
 
 def save_img(captured_image):
     uploads_dir = BASE_DIR / "uploads"
-    uploads_dir.mkdir(exist_ok=True) # Create uploads directory if it doesn't exist
+    uploads_dir.mkdir(exist_ok=True)
     file_path = uploads_dir / "captured.jpg"
     with open(file_path, "wb") as f:
         f.write(captured_image.getvalue())
-    return str(file_path) # Return as string for compatibility with image.load_img
+    return str(file_path)
 
-
-# --- Styling ---
+# --- Additional Styling ---
 st.markdown("""
 <style>
 body {
@@ -257,8 +278,6 @@ st.markdown("""
             margin: 25px 0; box-shadow: 0 0 10px rgba(255, 100, 100, 0.15);'>
 """, unsafe_allow_html=True)
 
-
-
 # --- Camera Input ---
 captured_image = st.camera_input("📸 Capture your photo", key="camera")
 
@@ -272,16 +291,16 @@ if captured_image:
         index = np.argmax(similarity)
         
         # Extract celebrity name from the filename
-        # Assumes filenames are like "Actor_Name_001.jpg"
-        celeb_filename = Path(filenames[index]).name
+        celeb_filepath = Path(filenames[index])
+        celeb_filename = celeb_filepath.name
         celeb_name_parts = celeb_filename.split('_')
+        
         if len(celeb_name_parts) >= 2:
             # Join parts until the numeric index
             celeb_name = " ".join(celeb_name_parts[:-1]).title()
         else:
             # Fallback if name format is unexpected
-            celeb_name = Path(filenames[index]).stem.replace("_", " ").title()
-        
+            celeb_name = celeb_filepath.stem.replace("_", " ").title()
 
     # --- Display results ---
     st.markdown('<div class="result-box">', unsafe_allow_html=True)
@@ -291,7 +310,14 @@ if captured_image:
         st.image(img, use_container_width=True, caption="Your Photo")
 
     with col2:
-        st.image(filenames[index], use_container_width=True, caption="Your Celebrity Match")
+        # Check if celebrity image exists before displaying
+        celeb_img_path = filenames[index]
+        if Path(celeb_img_path).exists():
+            st.image(celeb_img_path, use_container_width=True, caption="Your Celebrity Match")
+        else:
+            st.warning(f"Celebrity image not found: {Path(celeb_img_path).name}")
+            st.info("The match was found, but the image file is missing from the deployment.")
+        
         st.markdown(f'<div class="actor-name">{celeb_name}</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
