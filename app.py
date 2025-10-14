@@ -82,38 +82,19 @@ model = load_model()
 # --- Load features ---
 @st.cache_data
 def load_features():
-    import re
-
     features = pickle.load(open("features.pkl", "rb"))
     filenames = pickle.load(open("filenames.pkl", "rb"))
 
-    fixed_filenames = []
-    for f in filenames:
-        f = f.replace("\\", "/")  # normalize slashes
+    # Normalize all paths just in case
+    fixed_filenames = [os.path.abspath(f).replace("\\", "/") for f in filenames]
 
-        # extract base filename (e.g., Nargis_Fakhri_014.jpg)
-        base = os.path.basename(f)
-
-        # derive correct folder name from the filename prefix
-        # e.g. Nargis_Fakhri_014.jpg → Nargis_Fakhri
-        folder_name = re.match(r"([A-Za-z_]+?)(?:_\d+)?\.[A-Za-z]+$", base)
-        if folder_name:
-            folder_name = folder_name.group(1)
-        else:
-            folder_name = base.split("_")[0]  # fallback
-
-        # rebuild correct full path
-        # new_path = os.path.join("Celeb_Classifier", "data", folder_name, base)
-        base_dir = os.path.dirname(os.path.abspath(__file__))  # directory where app.py lives
-        new_path = os.path.join(base_dir, "data", folder_name, base)
-
-        if not os.path.exists(new_path):
-            # optional debugging print
-            print(f"⚠️ File not found: {new_path}")
-        fixed_filenames.append(new_path)
+    # Verify files exist (optional debug print)
+    missing = [f for f in fixed_filenames if not os.path.exists(f)]
+    if missing:
+        print(f"⚠️ Missing {len(missing)} files (first few shown):")
+        print("\n".join(missing[:5]))
 
     return features, fixed_filenames
-
 
 
 feature_list, filenames = load_features()
@@ -132,10 +113,141 @@ def save_img(captured_image):
         f.write(captured_image.getvalue())
     return file_path
 
-# --- App Header ---
-st.markdown("<h1>Celebrity Lookalike Finder</h1>", unsafe_allow_html=True)
-st.markdown("<h3>Find out which celebrity mirrors your vibe 🎥</h3>", unsafe_allow_html=True)
-st.divider()
+# --- Styling ---
+st.markdown("""
+<style>
+body {
+    background: radial-gradient(circle at 20% 20%, #1f1f2e, #0c0c10);
+    color: #eaeaea;
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+}
+h1, h3 {
+    text-align: center;
+}
+.stButton>button {
+    border-radius: 12px;
+    padding: 0.65rem 1.3rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(90deg, #ff4b4b, #ff7f50);
+    border: none;
+    transition: 0.3s ease;
+}
+.stButton>button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #ff7f50, #ff4b4b);
+    box-shadow: 0 0 18px rgba(255, 123, 123, 0.4);
+}
+.result-box {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    margin-top: 35px;
+    animation: fadeIn 1.2s ease-in-out;
+}
+.actor-name {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #ffb347;
+    text-align: center;
+    margin-top: 10px;
+}
+.caption {
+    font-size: 0.9rem;
+    color: #bbb;
+    text-align: center;
+}
+[data-testid="stCameraInput"] {
+    background: rgba(255,255,255,0.03);
+    border-radius: 18px;
+    box-shadow: 0 0 20px rgba(255, 100, 100, 0.15);
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+[data-testid="stCameraInput"]:hover {
+    box-shadow: 0 0 35px rgba(255, 120, 120, 0.25);
+}
+[data-testid="stImage"] img {
+    border-radius: 14px;
+    box-shadow: 0 0 12px rgba(255, 75, 75, 0.4);
+    transition: all 0.3s ease;
+}
+[data-testid="stImage"] img:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px rgba(255, 123, 123, 0.6);
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Hero Section ---
+st.markdown("""
+    <style>
+    .hero {
+        text-align: center;
+        margin-top: 20px;
+        animation: fadeIn 1.2s ease-in-out;
+    }
+    .hero img {
+        width: 130px;
+        border-radius: 22px;
+        box-shadow: 0 0 28px rgba(255, 75, 75, 0.35);
+        margin-bottom: 18px;
+        transition: all 0.4s ease;
+    }
+    .hero img:hover {
+        transform: scale(1.08);
+        box-shadow: 0 0 40px rgba(255, 123, 123, 0.65);
+    }
+    .hero h1 {
+        font-weight: 700;
+        font-size: 2.6rem;
+        background: linear-gradient(90deg, #ff4b4b, #ffb347, #ff4b4b);
+        background-size: 200% auto;
+        animation: gradientMove 5s ease infinite;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+    .hero h3 {
+        color: #e5e5e5;
+        font-weight: 400;
+        font-size: 1.1rem;
+        margin-top: 10px;
+        margin-bottom: 4px;
+    }
+    .hero p {
+        color: #ff7f50;
+        font-size: 0.9rem;
+        margin-top: 8px;
+        letter-spacing: 0.6px;
+    }
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    </style>
+
+    <div class="hero">
+        <img src="https://raw.githubusercontent.com/Anasarfeen123/Celeb_Classifier/main/hc.jpg" alt="Hack Club Logo"/>
+        <h1>Celebrity Lookalike Finder</h1>
+        <h3>Find out which celebrity mirrors your vibe 🎥</h3>
+        <p>Powered by Hack Club</p>
+    </div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<hr style='border: none; border-top: 1px solid rgba(255,255,255,0.15);
+            margin: 25px 0; box-shadow: 0 0 10px rgba(255, 100, 100, 0.15);'>
+""", unsafe_allow_html=True)
+
+
 
 # --- Camera Input ---
 captured_image = st.camera_input("📸 Capture your photo", key="camera")
