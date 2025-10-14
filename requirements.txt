@@ -3,3 +3,5 @@ tensorflow
 scikit-learn
 Pillow
 numpy
+opencv-python-headless
+tqdm
