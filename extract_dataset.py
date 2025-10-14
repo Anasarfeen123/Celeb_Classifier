@@ -1,7 +1,10 @@
+
 import os
 from icrawler.builtin import BingImageCrawler
 from PIL import Image
 from time import sleep
+from pathlib import Path # Added for robust path handling
+
 # === CELEB LISTS ===
 hollywood_celebrities = celebrities = [
     "Johnny Depp", "Arnold Schwarzenegger", "Jim Carrey", "Leonardo DiCaprio",
@@ -32,10 +35,11 @@ all_celebrities = hollywood_celebrities + kollywood_celebrities
 
 
 # === Config ===
-output_root = "data"
+# output_root will be relative to where this script is run
+output_root = Path("data") 
 images_per_celeb = 100
 target_size = (64, 64)   # pixel size
-os.makedirs(output_root, exist_ok=True)
+output_root.mkdir(exist_ok=True) # Use Path.mkdir for safety
 
 def resize_all_images(folder, size):
     """Resize all images in folder to given size in-place."""
@@ -50,21 +54,14 @@ def resize_all_images(folder, size):
             os.remove(file_path)
 
 for name in all_celebrities:
-    folder = os.path.join(output_root, name.replace(" ", "_"))
-    os.makedirs(folder, exist_ok=True)
+    folder = output_root / name.replace(" ", "_") # Use Path objects for joining
+    folder.mkdir(exist_ok=True) # Create folder
 
     print(f"\n🎥 Downloading images for {name}...")
-    crawler = BingImageCrawler(storage={"root_dir": folder})
-    crawler.crawl(
-        keyword=f"{name} face portrait",
-        filters={"type": "photo"},
-        max_num=images_per_celeb
-    )
-
+    crawler = BingImageCrawler(storage={"root_dir": str(folder)}) # Convert Path to string for crawler
+    crawler.crawl(keyword=f"{name} face portrait", filters={"type":"photo"}, max_num=images_per_celeb)
     print(f"🪄 Resizing images for {name}...")
-    resize_all_images(folder, target_size)
+    resize_all_images(str(folder), target_size) # Convert Path to string for resize_all_images
     print(f"✅ Done: {name}")
-
-    sleep(3)  # avoid server spam
-
+    sleep(3)  # avoid server spam    
 print("\n✅ All downloads complete. 64×64 dataset ready in 'data/'")

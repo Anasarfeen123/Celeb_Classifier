@@ -8,6 +8,7 @@ import numpy as np
 import glob
 import pickle
 import os
+from pathlib import Path # Added for robust path handling
 
 # --- Page setup ---
 st.set_page_config(page_title="Celebrity Lookalike", page_icon="🌟", layout="centered")
@@ -71,6 +72,9 @@ h3 {
 </style>
 """, unsafe_allow_html=True)
 
+# Determine the base directory of the app
+BASE_DIR = Path(__file__).parent
+
 # --- Cache model ---
 @st.cache_resource
 def load_model():
@@ -82,17 +86,21 @@ model = load_model()
 # --- Load features ---
 @st.cache_data
 def load_features():
-    features = pickle.load(open("features.pkl", "rb"))
-    filenames = pickle.load(open("filenames.pkl", "rb"))
+    features_path = BASE_DIR / "features.pkl"
+    filenames_path = BASE_DIR / "filenames.pkl"
 
-    # Normalize all paths just in case
-    fixed_filenames = [os.path.abspath(f).replace("\\", "/") for f in filenames]
+    if not features_path.exists():
+        st.error(f"Error: {features_path.name} not found. Please ensure feature_embedding.pkl (renamed to features.pkl) is in the app's directory.")
+        st.stop()
+    if not filenames_path.exists():
+        st.error(f"Error: {filenames_path.name} not found. Please ensure filenames.pkl is in the app's directory.")
+        st.stop()
 
-    # Verify files exist (optional debug print)
-    missing = [f for f in fixed_filenames if not os.path.exists(f)]
-    if missing:
-        print(f"⚠️ Missing {len(missing)} files (first few shown):")
-        print("\n".join(missing[:5]))
+    features = pickle.load(open(features_path, "rb"))
+    filenames = pickle.load(open(filenames_path, "rb"))
+
+    # Normalize all paths just in case (and convert to string for display/comparison if needed)
+    fixed_filenames = [str(Path(f).resolve()) for f in filenames]
 
     return features, fixed_filenames
 
@@ -107,11 +115,13 @@ def feature_extractor(img_path, model):
     return model.predict(preprocessed).flatten()
 
 def save_img(captured_image):
-    os.makedirs("uploads", exist_ok=True)
-    file_path = os.path.join("uploads", "captured.jpg")
+    uploads_dir = BASE_DIR / "uploads"
+    uploads_dir.mkdir(exist_ok=True) # Create uploads directory if it doesn't exist
+    file_path = uploads_dir / "captured.jpg"
     with open(file_path, "wb") as f:
         f.write(captured_image.getvalue())
-    return file_path
+    return str(file_path) # Return as string for compatibility with image.load_img
+
 
 # --- Styling ---
 st.markdown("""
@@ -260,8 +270,19 @@ if captured_image:
         uploaded_features = feature_extractor(img_path, model)
         similarity = cosine_similarity([uploaded_features], feature_list)
         index = np.argmax(similarity)
-        celeb_name = " ".join(os.path.basename(filenames[index]).split("_")).title()
-    
+        
+        # Extract celebrity name from the filename
+        # Assumes filenames are like "Actor_Name_001.jpg"
+        celeb_filename = Path(filenames[index]).name
+        celeb_name_parts = celeb_filename.split('_')
+        if len(celeb_name_parts) >= 2:
+            # Join parts until the numeric index
+            celeb_name = " ".join(celeb_name_parts[:-1]).title()
+        else:
+            # Fallback if name format is unexpected
+            celeb_name = Path(filenames[index]).stem.replace("_", " ").title()
+        
+
     # --- Display results ---
     st.markdown('<div class="result-box">', unsafe_allow_html=True)
     col1, col2 = st.columns(2, gap="large")
