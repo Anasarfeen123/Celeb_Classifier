@@ -350,8 +350,8 @@ with st.expander("⚙️ Advanced Settings"):
         use_face_detection = st.checkbox("🎯 Face Detection", value=True, help="Crop to face region for better accuracy")
         use_enhancement = st.checkbox("✨ Image Enhancement", value=True, help="Apply preprocessing to improve quality")
     with col_s2:
-        show_top_matches = st.checkbox("📊 Show Top 3 Matches", value=False, help="Display multiple celebrity matches")
-        top_k = 3 if show_top_matches else 1
+        show_top_matches = st.checkbox("📊 Show Top 5 Matches", value=True, help="Display multiple celebrity matches")
+        top_k = 5 if show_top_matches else 1
 
 # --- Camera Input ---
 captured_image = st.camera_input("📸 Capture your photo", key="camera")
@@ -456,5 +456,6 @@ st.markdown("""
 <hr style='border: none; border-top: 1px solid rgba(255,255,255,0.15); margin: 35px 0;'>
 <p style='text-align: center; color: #888; font-size: 0.85rem;'>
     Made with ❤️ using ResNet50 Deep Learning • Face Detection • Image Enhancement
+    By Hackclub (Made by Anas Arfeen)
 </p>
 """, unsafe_allow_html=True)

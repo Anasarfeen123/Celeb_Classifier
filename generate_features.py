@@ -168,8 +168,9 @@ def extract_feature(path_str, use_augmentation=False, use_face_detection=True):
 
 
 def extract_feature_wrapper(args):
-    """Wrapper to unpack arguments for multiprocessing."""
-    return extract_feature(*args)
+    path_str, use_aug, use_face = args
+    feat = extract_feature(path_str, use_aug, use_face)
+    return path_str, feat
 
 
 def filter_low_quality_images(filenames, data_dir):
@@ -308,19 +309,18 @@ def main(args):
 
     # Run parallel processing
     with Pool(processes=args.workers, initializer=init_worker) as pool:
-        results_iter = pool.imap_unordered(
+        results_iter = pool.imap(
             extract_feature_wrapper, 
             process_args, 
             chunksize=args.chunksize
         )
         features = []
         valid_filenames = []
-        
-        for i, feat in enumerate(tqdm(results_iter, total=len(filenames), desc="🔍 Extracting features")):
-            # Skip zero vectors (failed extractions)
+        for path_str, feat in tqdm(results_iter, total=len(filenames), desc="🔍 Extracting features"):
             if not np.allclose(feat, 0):
                 features.append(feat)
-                valid_filenames.append(filenames[i])
+                valid_filenames.append(path_str)
+
 
     print(f"\n✅ Successfully extracted {len(features)} feature vectors")
     print(f"❌ Failed extractions: {len(filenames) - len(features)}")
@@ -357,7 +357,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--base-dir",
         type=str,
-        default="/home/anas/Celeb_Classifier",
+        default=str(Path(__file__).resolve().parent),
         help="Path to Celeb_Classifier (contains filenames.pkl and where output will be saved).",
     )
     parser.add_argument(
@@ -389,16 +389,18 @@ if __name__ == "__main__":
         help="Enable data augmentation for more robust features (slower but better accuracy).",
     )
     parser.add_argument(
-        "--use-face-detection",
-        action="store_true",
-        default=True,
-        help="Enable face detection and cropping (recommended for better accuracy).",
+        "--no-face-detection",
+        action="store_false",
+        default=False,
+        dest="use_face_detection",
+        help="Disables face detection and cropping (recommended for better accuracy).",
     )
     parser.add_argument(
-        "--filter-quality",
-        action="store_true",
+        "--no-filter-quality",
+        action="store_false",
         default=True,
-        help="Filter out low-quality images before processing.",
+        dest="filter_quality",
+        help="Disables filtering out low-quality images before processing.",
     )
     parser.add_argument(
         "--balance",
