@@ -7,6 +7,9 @@ import numpy as np
 import argparse
 import warnings
 from collections import defaultdict
+import tensorflow as tf
+from tensorflow.keras.applications import ResNet50
+import cv2
 
 # Silence TensorFlow logs
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -18,12 +21,14 @@ VECTOR_SIZE = None
 
 def init_worker():
     """Initializer for worker processes: loads ResNet50 and face detector in each process."""
-    import os
-    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU in subprocesses to prevent OOM
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # disable GPU in subprocesses to prevent OOM
     global MODEL, FACE_CASCADE, VECTOR_SIZE
-    from tensorflow.keras.applications import ResNet50
-    import cv2
-    
+
+    print(tf.config.list_physical_devices("GPU"))
+    gpus = tf.config.list_physical_devices("GPU")
+    if gpus:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)    
     MODEL = ResNet50(
         weights="imagenet",
         include_top=False,
@@ -144,7 +149,7 @@ def extract_feature(path_str, use_augmentation=False, use_face_detection=True):
             for aug_img in augmented_images:
                 arr = np.expand_dims(aug_img, axis=0)
                 arr = preprocess_input(arr.astype(np.float32))
-                feat = MODEL.predict(arr, verbose=0).flatten().astype(np.float32)
+                feat = MODEL(arr, training=False).numpy().flatten().astype(np.float32)
                 features_list.append(feat)
             
             # Average all augmented features
@@ -153,7 +158,7 @@ def extract_feature(path_str, use_augmentation=False, use_face_detection=True):
             # Single feature extraction
             arr = np.expand_dims(img_resized, axis=0)
             arr = preprocess_input(arr.astype(np.float32))
-            feat = MODEL.predict(arr, verbose=0).flatten().astype(np.float32)
+            feat = MODEL(arr, training=False).numpy().flatten().astype(np.float32)
         
         # L2 normalization for cosine similarity
         norm = np.linalg.norm(feat)

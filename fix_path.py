@@ -8,7 +8,7 @@ This ensures the app works both locally and in deployment.
 """
 
 # Path to your Celeb_Classifier directory
-BASE_DIR = Path("/home/anas/Celeb_Classifier")
+BASE_DIR = Path(__file__).resolve().parent
 data_dir = BASE_DIR / "data"
 
 # Load the existing filenames.pkl

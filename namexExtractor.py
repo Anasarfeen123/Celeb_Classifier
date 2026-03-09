@@ -1,10 +1,11 @@
 import os
 import pickle
+from pathlib import Path
 
 # Define dataset paths
-data_dir = '/home/anas/Celeb_Classifier/data'
-data_dir_main = '/home/anas/Celeb_Classifier'
-
+BASE_DIR = Path(__file__).resolve().parent
+data_dir = f'{BASE_DIR}/data'
+data_dir_main = BASE_DIR
 # Check directory existence
 if not os.path.exists(data_dir):
     raise FileNotFoundError(f"Directory '{data_dir}' does not exist. Please check the path.")

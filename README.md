@@ -6,17 +6,11 @@ Upload or capture a photo, and the model analyzes your facial features to find t
 
 Built with **Streamlit, TensorFlow, and ResNet50**.
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://celebritylookalike.streamlit.app/)
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)]()
-[![Streamlit](https://img.shields.io/badge/Built%20with-Streamlit-red)]()
-[![TensorFlow](https://img.shields.io/badge/AI-TensorFlow-orange)]()
-[![License](https://img.shields.io/badge/License-MIT-green.svg)]()
-[![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-blue)]()
-
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://celebritylookalike.streamlit.app/) ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg) ![Streamlit](https://img.shields.io/badge/Built%20with-Streamlit-red)  ![TensorFlow](https://img.shields.io/badge/AI-TensorFlow-orange) ![License](https://img.shields.io/badge/License-MIT-green.svg) ![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-blue)
 
 ---
 
-# 🚀 Features
+## 🚀 Features
 
 ### 🎥 AI Face Matching
 
