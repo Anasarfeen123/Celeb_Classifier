@@ -6,4 +6,5 @@
 uploads/
 __pycache__/
 venv/
-.vscode/settings.json
+config.bat
+node_modules
