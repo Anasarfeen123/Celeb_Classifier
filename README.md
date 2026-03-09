@@ -44,14 +44,12 @@ Users can toggle:
 
 ---
 
-# 🖼 Demo
+# 🚀 Live Demo
 
-Example workflow:
+👉 Try it here:
+https://celebritylookalike.streamlit.app/
 
-1. Capture your photo
-2. AI extracts facial features
-3. Compares against celebrity dataset
-4. Returns top matches with similarity %
+No installation required — just open the link, allow camera access, and see which celebrity you resemble!
 
 ---
 
