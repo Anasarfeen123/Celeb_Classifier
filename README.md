@@ -13,8 +13,6 @@ Built with **Streamlit, TensorFlow, and ResNet50**.
 [![License](https://img.shields.io/badge/License-MIT-green.svg)]()
 [![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-blue)]()
 
-An AI-powered web application that finds your **celebrity lookalike** using deep learning and face analysis.
-
 
 ---
 
